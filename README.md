@@ -15,7 +15,7 @@ Aunque este dataset estaba completamente enfocado en el objetivo del proyecto, s
 
 Debido a esto, continué investigando datasets más amplios relacionados con fútbol internacional y finalmente decidí utilizar el siguiente dataset:
 
-[International Football Results From 1872 to 2017](https://www.kaggle.com/datasets/martj42/international-football-results-from-1872-to-2017?)
+[International Football Results From 1872 to 2026](https://www.kaggle.com/datasets/martj42/international-football-results-from-1872-to-2017?)
 
 Este dataset incluye partidos internacionales de distintas competiciones, como:
 
