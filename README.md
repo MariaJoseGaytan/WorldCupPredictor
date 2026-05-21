@@ -74,13 +74,23 @@ validation.csv
 test.csv
 ```
 
+Dimensiones de los datasets generados:
+
+```text
+Train: (38316, 10)
+Validation: (64, 10)
+Test: (128, 10)
+```
+
 La estrategia utilizada fue la siguiente:
 
 - El dataset de entrenamiento contiene partidos internacionales de distintas competiciones anteriores al Mundial de 2014.
 - Los partidos de la Copa Mundial de 2014 fueron reservados exclusivamente para validación.
-- Los Mundiales de 2018 y 2022 fueron reservados únicamente para pruebas finales del modelo.
+- Los partidos de los mundiales de 2018 y 2022 fueron reservados únicamente para pruebas finales del modelo.
 
-La razón de esta división es que el objetivo principal del proyecto es evaluar el desempeño del modelo específicamente en partidos mundialistas. Por ello, decidí utilizar los partidos de los Mundiales más recientes únicamente para validación y prueba, evitando asi que el modelo tenga acceso a ellos durante el entrenamiento.
+La razón de esta división es que el objetivo principal del proyecto es evaluar el desempeño del modelo específicamente en partidos mundialistas. Por ello, decidí utilizar los partidos de los Mundiales más recientes únicamente para validación y prueba, evitando así que el modelo tenga acceso a ellos durante el entrenamiento.
+
+Aunque los datasets de validación y prueba contienen muchas menos instancias que el dataset de entrenamiento, esto fue intencional debido al scope del proyecto. El modelo busca enfocarse específicamente en la predicción de partidos de la Copa Mundial, por lo que los conjuntos de validación y prueba únicamente contienen partidos mundialistas reales. Por otro lado, el dataset de entrenamiento incluye una gran variedad de partidos internacionales para permitir que el modelo aprenda patrones generales del rendimiento de las selecciones nacionales y pueda generalizar mejor.
 
 Además, el shuffle fue aplicado únicamente al dataset de entrenamiento para mejorar la distribución de ejemplos durante el aprendizaje, manteniendo el orden cronológico en validación y prueba para poder simular escenarios reales de predicción.
 
