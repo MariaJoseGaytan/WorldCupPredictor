@@ -34,6 +34,12 @@ Posteriormente, realicé un proceso de limpieza y normalización de los datos ut
 - Convertí todos los textos al formato CamelCase para mantener consistencia en nombres y evitar problemas relacionados con espacios o formatos diferentes.
 - Transformé la columna `neutral` a valores numéricos (`1` y `0`) para facilitar el entrenamiento del modelo.
 - Agregué una nueva columna llamada `winner` para identificar explícitamente al ganador de cada partido.
+- Agregué una nueva columna llamada `result` para transformar el problema de predicción en una clasificación multiclase con tres posibles resultados:
+  - `home_win`: gana el equipo local.
+  - `away_win`: gana el equipo visitante.
+  - `draw`: el partido termina en empate.
+    
+Esta transformación la realizó porque predecir directamente el nombre de la selección ganadora generaba demasiadas clases distintas, lo que aumentaba la complejidad del modelo. Además, esta estructura permite alinear mejor el proyecto con el paper seleccionado, donde la predicción de resultados de fútbol se plantea como una clasificación entre victoria, derrota o empate.
 - Ordené cronológicamente el dataset para mantener coherencia temporal en el proyecto.
 
 El notebook encargado de este proceso se encuentra en:
@@ -77,9 +83,9 @@ test.csv
 Dimensiones de los datasets generados:
 
 ```text
-Train: (38316, 10)
-Validation: (64, 10)
-Test: (128, 10)
+Train: (38316, 11)
+Validation: (64, 11)
+Test: (128, 11)
 ```
 
 La estrategia utilizada fue la siguiente:
