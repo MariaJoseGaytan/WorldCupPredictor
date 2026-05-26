@@ -39,7 +39,7 @@ Posteriormente, realicé un proceso de limpieza y normalización de los datos ut
   - `away_win`: gana el equipo visitante.
   - `draw`: el partido termina en empate.
     
-Esta transformación la realizó porque predecir directamente el nombre de la selección ganadora generaba demasiadas clases distintas, lo que aumentaba la complejidad del modelo. Además, esta estructura permite alinear mejor el proyecto con el paper seleccionado, donde la predicción de resultados de fútbol se plantea como una clasificación entre victoria, derrota o empate.
+Esta transformación la realice porque predecir directamente el nombre de la selección ganadora generaba demasiadas clases distintas, lo que aumentaba la complejidad del modelo. Además, esta estructura permite alinear mejor el proyecto con el paper seleccionado, donde la predicción de resultados de fútbol se plantea como una clasificación entre victoria, derrota o empate.
 - Ordené cronológicamente el dataset para mantener coherencia temporal en el proyecto.
 
 El notebook encargado de este proceso se encuentra en:
