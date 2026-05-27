@@ -1,107 +1,216 @@
-# WorldCupPredictor
-# Contexto del Proyecto
+# WorldCupPredictor 
 
-Este proyecto tiene como objetivo desarrollar un modelo de Machine Learning capaz de predecir resultados de partidos de fútbol, enfocándose principalmente en partidos de la Copa Mundial de la FIFA. La idea principal es analizar datos históricos de selecciones nacionales para identificar patrones que permitan estimar el posible ganador de futuros encuentros.
+Proyecto de Machine Learning enfocado en la predicción de resultados de partidos de la Copa Mundial de la FIFA utilizando estadísticas históricas y features generadas a partir del desempeño acumulado de las selecciones.
 
 ---
 
-# Dataset
+# Objetivo del Proyecto
 
-Inicialmente investigué diferentes datasets relacionados con la Copa Mundial de la FIFA y encontré un dataset que contenía únicamente partidos mundialistas desde 1930 hasta 2022:
+El objetivo principal de este proyecto es desarrollar un modelo de Machine Learning capaz de predecir el resultado de partidos de la Copa Mundial utilizando información histórica y desempeño previo de las selecciones.
 
-[FIFA World Cup 1930-2022 All Match Dataset](https://www.kaggle.com/datasets/jahaidulislam/fifa-world-cup-1930-2022-all-match-dataset/data)
+El modelo busca identificar patrones históricos dentro de los Mundiales para intentar estimar si un equipo ganará, empatará o perderá un partido.
 
-Aunque este dataset estaba completamente enfocado en el objetivo del proyecto, solamente contaba con alrededor de 900 instancias. Después de analizarlo, consideré que esta cantidad de datos podía ser insuficiente para entrenar correctamente un modelo de Machine Learning, especialmente una red neuronal, ya que existía el riesgo de overfitting y de que el modelo únicamente memorizara patrones históricos del Mundial.
+---
 
-Debido a esto, continué investigando datasets más amplios relacionados con fútbol internacional y finalmente decidí utilizar el siguiente dataset:
+# Cambio de enfoque del proyecto
 
-[International Football Results From 1872 to 2026](https://www.kaggle.com/datasets/martj42/international-football-results-from-1872-to-2017?)
+Inicialmente consideré utilizar datasets de fútbol internacional que incluían amistosos, eliminatorias y distintos torneos alrededor del mundo. La idea era utilizar una mayor cantidad de partidos para entrenar el modelo.
 
-Este dataset incluye partidos internacionales de distintas competiciones, como:
+Sin embargo, después de analizar mejor el problema y el alcance real del proyecto, me di cuenta de que utilizar partidos internacionales generales añadía mucho ruido al modelo y no necesariamente aportaba valor para predecir encuentros mundialistas.
 
-- Mundial
-- Partidos amistosos internacionales  
-- Eliminatorias mundialistas  
-- Torneos continentales  
-- Otras competiciones oficiales internacionales  
+Esto se debe a varios factores:
 
-La decisión de utilizar este dataset fue tomada porque permite trabajar con una cantidad mucho mayor y más variada de partidos, ayudando al modelo a aprender patrones generales del rendimiento de las selecciones nacionales y no únicamente información específica de los Mundiales.
+- Los equipos que juegan Mundiales cambian dependiendo de la edición.
+- Los amistosos y eliminatorias tienen contextos competitivos muy distintos.
+- Un partido amistoso no representa la presión ni comportamiento de un partido de Copa Mundial.
+- Algunos equipos juegan muchísimos partidos internacionales pero rara vez participan en Mundiales.
 
-Posteriormente, realicé un proceso de limpieza y normalización de los datos utilizando Python. Durante este proceso:
+Debido a esto, decidí utilizar exclusivamente un dataset enfocado en partidos de la Copa Mundial de la FIFA, priorizando la relevancia del contexto competitivo sobre la cantidad total de datos.
 
-- Eliminé filas vacías o con información faltante importante.
-- Normalicé nombres de equipos, torneos, ciudades y países utilizando `unicodedata` para eliminar acentos y caracteres especiales.
-- Convertí todos los textos al formato CamelCase para mantener consistencia en nombres y evitar problemas relacionados con espacios o formatos diferentes.
-- Transformé la columna `neutral` a valores numéricos (`1` y `0`) para facilitar el entrenamiento del modelo.
-- Agregué una nueva columna llamada `winner` para identificar explícitamente al ganador de cada partido.
-- Agregué una nueva columna llamada `result` para transformar el problema de predicción en una clasificación multiclase con tres posibles resultados:
-  - `home_win`: gana el equipo local.
-  - `away_win`: gana el equipo visitante.
-  - `draw`: el partido termina en empate.
-    
-Esta transformación la realice porque predecir directamente el nombre de la selección ganadora generaba demasiadas clases distintas, lo que aumentaba la complejidad del modelo. Además, esta estructura permite alinear mejor el proyecto con el paper seleccionado, donde la predicción de resultados de fútbol se plantea como una clasificación entre victoria, derrota o empate.
-- Ordené cronológicamente el dataset para mantener coherencia temporal en el proyecto.
+Esta decisión me permitió construir un dataset más coherente con el objetivo real del proyecto.
 
-El notebook encargado de este proceso se encuentra en:
+---
 
-```text
-notebooks/preprocessingData/cleanData.ipynb
-```
+# Dataset Utilizado
 
-El dataset limpio generado se almacena en:
+Dataset principal utilizado:
+
+- [FIFA Football World Cup](https://www.kaggle.com/datasets/piterfm/fifa-football-world-cup)
+
+Dataset internacional considerado inicialmente:
+
+- [International Football Results From 1872 to 2026](https://www.kaggle.com/datasets/martj42/international-football-results-from-1872-to-2017)
+
+---
+
+# Limpieza y Preparación de Datos
+
+El notebook encargado de la limpieza y generación de features se encuentra en:
 
 ```text
-data/processedData/cleanedData.csv
+notebooks/preprocessingData/cleanData_newFeatures.ipynb
 ```
+
+Durante el proceso de limpieza realicé las siguientes tareas:
+
+- Limpieza y normalización de nombres de columnas.
+- Conversión de fechas a formato datetime.
+- Eliminación de espacios innecesarios.
+- Ordenamiento cronológico de partidos.
+- Creación de variables auxiliares.
+- Creación de la variable objetivo del modelo.
+
+Resultados obtenidos después de la limpieza:
+
+```text
+Dataset limpio: (964, 38)
+```
+
+---
+
+# Variables Agregadas
+
+Además de las columnas originales, agregué nuevas variables para aportar más contexto al modelo.
+
+## Variables básicas
+
+| Columna | Descripción |
+|---|---|
+| goal_difference | Diferencia de goles |
+| total_goals | Total de goles en el partido |
+| result_label | Resultado codificado |
+| result_name | Resultado textual |
+| world_cup_year | Año del Mundial |
+
+---
+
+# Feature Engineering
+
+Una de las partes más importantes del proyecto fue la generación de features históricas para cada selección.
+
+La idea fue que el modelo no solamente viera nombres de países, sino también estadísticas acumuladas y rendimiento previo antes de cada partido.
+
+Todas las features fueron calculadas utilizando únicamente información anterior al partido correspondiente para evitar data leakage.
+
+El notebook utilizado fue:
+
+```text
+notebooks/preprocessingData/cleanData_newFeatures.ipynb
+```
+
+---
+
+# Features Históricas Agregadas
+
+## Estadísticas históricas
+
+- Partidos jugados.
+- Victorias acumuladas.
+- Empates acumulados.
+- Derrotas acumuladas.
+- Goles anotados.
+- Goles recibidos.
+- Diferencia histórica de goles.
+- Puntos acumulados.
+- Participaciones en Mundiales anteriores.
+
+## Estadísticas promedio
+
+- Win rate histórico.
+- Draw rate histórico.
+- Loss rate histórico.
+- Promedio de goles anotados.
+- Promedio de goles recibidos.
+- Puntos promedio por partido.
+
+## Rendimiento reciente
+
+Tomando los últimos 5 partidos:
+
+- Promedio reciente de goles anotados.
+- Promedio reciente de goles recibidos.
+- Win rate reciente.
+
+## Historial entre selecciones 
+
+- Partidos históricos entre ambos equipos.
+- Victorias históricas del local.
+- Victorias históricas del visitante.
+- Empates históricos.
+
+Resultados después del feature engineering:
+
+```text
+Dataset con features: (964, 78)
+```
+
+---
+
+# Variable Objetivo
+
+La variable objetivo del modelo quedó definida de la siguiente manera:
+
+| Valor | Significado |
+|---|---|
+| 2 | Victoria del equipo local |
+| 1 | Empate |
+| 0 | Victoria del equipo visitante |
 
 ---
 
 # División del Dataset
 
-Después del proceso de limpieza, dividí el dataset en entrenamiento, validación y prueba considerando los datos deportivos.
+La división del dataset se realizó por edición de Copa Mundial.
 
-El notebook encargado de esta división se encuentra en:
+Tomé esta decisión para evitar fuga de información entre partidos del mismo torneo y simular un escenario más realista de predicción futura.
+
+El notebook encargado del split fue:
 
 ```text
 notebooks/preprocessingData/splitData.ipynb
 ```
 
-Los archivos generados se almacenan en:
+La división quedó de la siguiente manera:
+
+| Dataset | Mundiales |
+|---|---|
+| Train | 1930 - 2010 |
+| Validation | 2014 |
+| Test | 2018 y 2022 |
+
+Resultados finales:
 
 ```text
-data/processedData/
+Train: (772, 78)
+Validation: (64, 78)
+Test: (128, 78)
 ```
 
-Archivos generados:
+Porcentajes obtenidos:
 
 ```text
-train.csv
-validation.csv
-test.csv
+Train: 80.08 %
+Validation: 6.64 %
+Test: 13.28 %
 ```
 
-Dimensiones de los datasets generados:
+---
+
+# Archivos Generados
+
+Los archivos generados después del procesamiento fueron:
 
 ```text
-Train: (38316, 11)
-Validation: (64, 11)
-Test: (128, 11)
+data/processedData/cleanedData.csv
+data/processedData/featuredData.csv
+data/processedData/train.csv
+data/processedData/validation.csv
+data/processedData/test.csv
 ```
-
-La estrategia utilizada fue la siguiente:
-
-- El dataset de entrenamiento contiene partidos internacionales de distintas competiciones anteriores al Mundial de 2014.
-- Los partidos de la Copa Mundial de 2014 fueron reservados exclusivamente para validación.
-- Los partidos de los mundiales de 2018 y 2022 fueron reservados únicamente para pruebas finales del modelo.
-
-La razón de esta división es que el objetivo principal del proyecto es evaluar el desempeño del modelo específicamente en partidos mundialistas. Por ello, decidí utilizar los partidos de los Mundiales más recientes únicamente para validación y prueba, evitando así que el modelo tenga acceso a ellos durante el entrenamiento.
-
-Aunque los datasets de validación y prueba contienen muchas menos instancias que el dataset de entrenamiento, esto fue intencional debido al scope del proyecto. El modelo busca enfocarse específicamente en la predicción de partidos de la Copa Mundial, por lo que los conjuntos de validación y prueba únicamente contienen partidos mundialistas reales. Por otro lado, el dataset de entrenamiento incluye una gran variedad de partidos internacionales para permitir que el modelo aprenda patrones generales del rendimiento de las selecciones nacionales y pueda generalizar mejor.
-
-Además, el shuffle fue aplicado únicamente al dataset de entrenamiento para mejorar la distribución de ejemplos durante el aprendizaje, manteniendo el orden cronológico en validación y prueba para poder simular escenarios reales de predicción.
 
 ---
 
 # Autor
 
 María José Gaytán Gil - A01706616
+
