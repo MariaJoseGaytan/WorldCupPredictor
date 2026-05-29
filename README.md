@@ -209,8 +209,165 @@ data/processedData/test.csv
 ```
 
 ---
+# Paper del estado de arte encontrado
 
+Como punto de partida para el desarrollo utilicé el artículo:
+
+**Luo, Y., Quan, T. & Cao, Y. (2025)**  
+*Predicting Football Match Outcomes: A Multilayer Perceptron Neural Network Model Based on Technical Statistics Indicators of the FIFA World Cup.*
+
+El paper utilizado se encuentra en:
+
+```text
+papers/fspor-07-1705198.pdf
+```
+
+Elegí este artículo porque aborda el mismo problema que busco resolver: la predicción de resultados de partidos de la Copa Mundial de la FIFA.
+
+En su propuesta, los autores desarrollan una Red Neuronal Multicapa (MLP) utilizando estadísticas oficiales proporcionadas por FIFA. Después de aplicar PCA para reducir la dimensionalidad de los datos, construyen una arquitectura compuesta por 24 variables de entrada, una capa oculta de 4 neuronas y una capa de salida con 3 clases correspondientes a victoria local, empate y victoria visitante.
+
+### Arquitectura propuesta por el paper
+
+```text
+24 Features de Entrada
+          ↓
+Dense (4 neuronas)
+          ↓
+Dense (3 neuronas)
+```
+
+Para evaluar su modelo utilizan las siguientes métricas:
+
+- Accuracy
+- Precision
+- Recall
+- F1-score
+
+Por esta razón decidí utilizar exactamente las mismas métricas en mi proyecto, ya que me permiten comparar mi desempeño con el trabajo presentado en el artículo.
+
+Los autores reportan un Accuracy de **86.7%**, obteniendo resultados superiores a otros enfoques evaluados en su investigación.
+
+Sin embargo, durante el análisis del artículo identifiqué una diferencia importante respecto al enfoque que decidí seguir. El modelo utiliza variables como:
+
+- Goals Scored (GS)
+- Goals Conceded (GC)
+- Assists (AS)
+- Shots on Target (ST)
+
+Estas estadísticas son generadas durante el desarrollo del partido y presentan una relación directa con el resultado final.
+
+Debido a esto, decidí no utilizar variables derivadas del propio encuentro y trabajar únicamente con información histórica disponible antes del inicio del partido. Considero que esto representa un escenario de predicción más realista, aunque también convierte el problema en uno considerablemente más difícil.
+
+A pesar de esta diferencia, la arquitectura propuesta por el artículo sirvió como base para el diseño de mi modelo inicial.
+
+---
+
+# Modelo inicial
+
+El notebook utilizado para entrenar el modelo inicial se encuentra en:
+
+```text
+notebooks/models/modeloInicial/modeloInicial.ipynb
+```
+
+Los pesos del modelo entrenado se encuentran en:
+
+```text
+notebooks/models/modeloInicial/modeloInicial.keras
+```
+
+Tomando como referencia la arquitectura propuesta por el artículo, desarrollé una Red Neuronal Multicapa (MLP) utilizando TensorFlow y Keras.
+
+### Arquitectura implementada
+
+```text
+44 Features de Entrada
+          ↓
+Dense (4 neuronas, tanh)
+          ↓
+Dense (3 neuronas, softmax)
+```
+
+### Configuración de entrenamiento
+
+```text
+Learning Rate : 0.001
+Batch Size    : 16
+Epochs        : 50
+Optimizer     : Adam
+Loss Function : Sparse Categorical Crossentropy
+```
+
+La capa de salida contiene tres neuronas correspondientes a:
+
+| Clase | Resultado |
+|---------|---------|
+| 0 | Victoria visitante |
+| 1 | Empate |
+| 2 | Victoria local |
+
+Durante el entrenamiento monitoreé Accuracy, Precision, Recall y F1-score, manteniendo consistencia con las métricas utilizadas en el paper de referencia.
+
+---
+
+## Resultados modelo inicial
+
+### Comparación de métricas
+
+| Métrica | Train | Validation | Test |
+|----------|----------:|----------:|----------:|
+| Accuracy | 0.6308 | 0.6250 | 0.5234 |
+| Precision | 0.5692 | 0.6198 | 0.5011 |
+| Recall | 0.6308 | 0.6250 | 0.5234 |
+| F1-score | 0.5659 | 0.6137 | 0.5074 |
+
+### Matriz de confusión - Validation
+
+![Validation Confusion Matrix](results/modeloInicial/validationConfusionMatrix.png)
+
+### Matriz de confusión - Test
+
+![Test Confusion Matrix](results/modeloInicial/testConfusionMatrix.png)
+
+### Accuracy
+
+![Accuracy](results/modeloInicial/accuracy.png)
+
+### Precision
+
+![Precision](results/modeloInicial/precision.png)
+
+### Recall
+
+![Recall](results/modeloInicial/recall.png)
+
+### F1-score
+
+![F1 Score](results/modeloInicial/f1score.png)
+
+### Análisis de resultados
+
+Las métricas de entrenamiento y validación presentan valores muy similares, lo que me indica que el modelo fue capaz de aprender patrones relevantes sin memorizar completamente los datos de entrenamiento.
+
+Sin embargo, al evaluar el modelo sobre los Mundiales de 2018 y 2022 observé una disminución aproximada de 10 puntos porcentuales en Accuracy y F1-score respecto al conjunto de validación. Esto sugiere que el modelo tiene ciertas dificultades para generalizar hacia ediciones futuras del torneo.
+
+Las gráficas de entrenamiento muestran que aproximadamente después de la época 20 las métricas de validación dejan de mejorar mientras las métricas de entrenamiento continúan aumentando ligeramente. Este comportamiento indica la presencia de un ligero overfitting.
+
+A pesar de ello, la diferencia entre entrenamiento y validación es relativamente pequeña, por lo que no considero que exista un caso severo de sobreajuste. El modelo logra capturar patrones históricos útiles, aunque todavía existe margen importante de mejora.
+
+También observé que la clase de empate es considerablemente más difícil de predecir que las victorias locales o visitantes. Esto puede apreciarse en las matrices de confusión y coincide con la naturaleza impredecible de este tipo de resultados en el fútbol.
+
+---
+
+# Conclusión modelo inicial
+
+El modelo inicial me permitió validar que es posible predecir resultados de partidos mundialistas utilizando únicamente información histórica disponible antes del encuentro.
+
+Aunque los resultados obtenidos son inferiores a los reportados en el paper de referencia, considero que la comparación no es completamente directa debido a que el artículo utiliza estadísticas generadas durante el propio partido, mientras que en este proyecto decidí evitar cualquier forma de fuga de información utilizando exclusivamente variables históricas.
+
+Los resultados obtenidos constituyen por ahora una línea base sólida para un futuro modelo del proyecto. Este primer modelo cumple con el objetivo de establecer una referencia inicial de desempeño y proporciona un punto de comparación para medir el impacto de futuros modelos.
+
+---
 # Autor
 
 María José Gaytán Gil - A01706616
-
